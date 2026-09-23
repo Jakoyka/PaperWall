@@ -1,0 +1,63 @@
+[package]
+name = "paperwall"
+version = "0.1.0"
+description = "Wallpaper manager for Windows 11"
+authors = ["Jakoyka"]
+edition = "2021"
+
+# `cargo build` (debug, what `tauri dev` uses) normally compiles every dependency completely
+# unoptimized — fine for most code, but the `image` crate's JPEG/PNG decoding is 10-20x slower
+# without optimizations, which is the thumbnail slowness you're seeing. This keeps *our own*
+# code (src-tauri/src/*.rs) fast to recompile on every save, while still optimizing every
+# dependency (image, zip, etc.) even in dev builds. Release builds (`tauri build`) already
+# optimize everything regardless, so this only matters for `tauri dev`.
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[lib]
+# The `_lib` suffix is required for Tauri mobile support; harmless on desktop-only apps too.
+name = "paperwall_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Official Tauri plugins used instead of hand-rolled equivalents.
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-clipboard-manager = "2"
+
+# Image decoding/encoding/resizing for thumbnails + wallpaper format conversion
+# (replaces Electron's Chromium-backed `nativeImage`).
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "bmp", "webp"] }
+
+# Zip extraction (replaces the `adm-zip` npm package).
+zip = { version = "2", default-features = false, features = ["deflate"] }
+
+# Content-hash IDs + thumbnail cache keys (replaces Node's `crypto.createHash('sha1')`).
+sha1 = "0.10"
+
+# Async runtime already pulled in by tauri, used directly for the thumbnail queue, async file
+# reads in the protocol handler, and the window-show safety-net timer.
+tokio = { version = "1", features = ["sync", "rt", "fs", "time"] }
+
+http = "1"
+
+[target.'cfg(windows)'.dependencies]
+# Direct Win32 call for SystemParametersInfoW (SPI_SETDESKWALLPAPER).
+windows = { version = "0.58", features = [
+  "Win32_UI_WindowsAndMessaging",
+  "Win32_Foundation",
+] }
+# Reads CurrentBuildNumber from the registry to gate the Acrylic "Clear" theme (Windows 11
+# 22H2+ only) — more reliable than GetVersionEx, which lies about the build unless the app
+# is manifested for the running Windows version.
+winreg = "0.52"

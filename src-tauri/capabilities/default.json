@@ -1,0 +1,16 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main PaperWall window: custom-titlebar window controls, file/folder/zip pickers, opening links, revealing files, and clipboard copy.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-close",
+    "core:window:allow-minimize",
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-start-dragging",
+    "dialog:allow-open",
+    "opener:default",
+    "clipboard-manager:allow-write-text"
+  ]
+}
