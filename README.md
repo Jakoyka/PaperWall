@@ -1,6 +1,8 @@
 # PaperWall
 
-A wallpaper manager for Windows 11. Organize your wallpapers into tabs and categories, preview them, and set one with a click.
+A wallpaper manager and image collection organizer for Windows 11. Sort your images into tabs and categories, import folders or ZIP files, preview and search them, and set any image as your wallpaper with one click.
+
+Also works as a lightweight gallery for keeping image collections organized: wallpapers, art, screenshots, reference photos.
 
 Built with React + Fluent UI on Tauri 2 (Rust backend, system WebView2, no bundled Chromium).
 
